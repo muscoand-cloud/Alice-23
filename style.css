@@ -1,92 +1,442 @@
-<!DOCTYPE html>
-<html lang="it">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Buon Compleanno Alice 🎂</title>
-  <link rel="stylesheet" href="style.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Cinzel:wght@400;600&family=Lato:wght@300;400&display=swap" rel="stylesheet"/>
-</head>
-<body>
+/* ===== VARIABLES ===== */
+:root {
+  --rose: #c9748a;
+  --rose-light: #e8b4c0;
+  --rose-pale: #fdf0f3;
+  --gold: #c9a84c;
+  --gold-light: #e8d5a3;
+  --cream: #fdf8f2;
+  --dark: #2a1a1f;
+  --mid: #6b4a55;
+  --white: #ffffff;
+  --font-display: 'Cinzel', serif;
+  --font-body: 'Cormorant Garamond', serif;
+  --font-sans: 'Lato', sans-serif;
+}
 
-  <!-- PETALI -->
-  <div id="petals-container"></div>
+/* ===== RESET & BASE ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  <!-- LOGIN SCREEN -->
-  <div id="login-screen" class="screen active">
-    <div class="login-box">
-      <div class="login-deco">✦</div>
-      <h1 class="login-title">Compleanno<br/><span>Alice</span></h1>
-      <p class="login-sub">Accedi per scoprire il tuo regalo</p>
-      <div class="input-group">
-        <label>ID</label>
-        <input type="text" id="input-id" placeholder="Il tuo nome speciale…" autocomplete="off"/>
-      </div>
-      <div class="input-group">
-        <label>Password</label>
-        <input type="password" id="input-pw" placeholder="La tua chiave segreta…" autocomplete="off"/>
-      </div>
-      <div id="login-error" class="error-msg"></div>
-      <button id="login-btn" onclick="handleLogin()">Entra ✦</button>
-    </div>
-  </div>
+html, body {
+  height: 100%;
+  background: var(--cream);
+  color: var(--dark);
+  font-family: var(--font-body);
+  overflow-x: hidden;
+}
 
-  <!-- COUNTDOWN SCREEN -->
-  <div id="countdown-screen" class="screen">
-    <div class="countdown-wrap">
-      <p class="countdown-label-top">Mancano solo</p>
-      <div class="countdown-boxes" id="countdown-boxes">
-        <div class="cbox"><span id="cd-days">--</span><small>Giorni</small></div>
-        <div class="cbox"><span id="cd-hours">--</span><small>Ore</small></div>
-        <div class="cbox"><span id="cd-mins">--</span><small>Minuti</small></div>
-        <div class="cbox"><span id="cd-secs">--</span><small>Secondi</small></div>
-      </div>
-      <p class="countdown-label-bot">al tuo giorno speciale, Alice 🎂</p>
-    </div>
-  </div>
+/* ===== PETALS ===== */
+#petals-container {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
 
-  <!-- CITY CHOICE SCREEN -->
-  <div id="city-screen" class="screen">
-    <h2 class="city-title">Scegli la tua destinazione</h2>
-    <p class="city-sub">Un viaggio per te — scegli una sola città</p>
-    <div class="cities-grid">
-      <div class="city-card" onclick="selectCity('paris')">
-        <div class="city-img paris-bg"></div>
-        <div class="city-info">
-          <h3>Parigi</h3>
-          <p>La Ville Lumière</p>
-        </div>
-      </div>
-      <div class="city-card" onclick="selectCity('edinburgh')">
-        <div class="city-img edinburgh-bg"></div>
-        <div class="city-info">
-          <h3>Edimburgo</h3>
-          <p>Magia tra i Castelli</p>
-        </div>
-      </div>
-      <div class="city-card" onclick="selectCity('istanbul')">
-        <div class="city-img istanbul-bg"></div>
-        <div class="city-info">
-          <h3>Istanbul</h3>
-          <p>Oriente & Occidente</p>
-        </div>
-      </div>
-      <div class="city-card" onclick="selectCity('barcelona')">
-        <div class="city-img barcelona-bg"></div>
-        <div class="city-info">
-          <h3>Barcellona</h3>
-          <p>Arte, Mare e Vita</p>
-        </div>
-      </div>
-    </div>
-  </div>
+.petal {
+  position: absolute;
+  top: -40px;
+  font-size: 1.2rem;
+  opacity: 0.6;
+  animation: fall linear infinite;
+}
 
-  <!-- ITINERARY SCREEN -->
-  <div id="itinerary-screen" class="screen">
-    <button class="back-btn" onclick="goBack()">← Torna alle città</button>
-    <div id="itinerary-content"></div>
-  </div>
+@keyframes fall {
+  0%   { transform: translateY(0) rotate(0deg); opacity: 0.6; }
+  100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
+}
 
-  <script src="app.js"></script>
-</body>
-</html>
+/* ===== SCREENS ===== */
+.screen {
+  display: none;
+  min-height: 100vh;
+  position: relative;
+  z-index: 1;
+  animation: fadeIn 0.8s ease;
+}
+.screen.active { display: flex; align-items: center; justify-content: center; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== LOGIN ===== */
+#login-screen {
+  background: linear-gradient(135deg, #fdf0f3 0%, #fdf8f2 50%, #fef9ee 100%);
+  flex-direction: column;
+}
+
+.login-box {
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--rose-light);
+  border-radius: 4px;
+  padding: 56px 48px;
+  width: 100%;
+  max-width: 420px;
+  text-align: center;
+  box-shadow: 0 8px 48px rgba(201,116,138,0.12);
+}
+
+.login-deco {
+  font-size: 1.4rem;
+  color: var(--gold);
+  margin-bottom: 16px;
+  letter-spacing: 0.5em;
+}
+
+.login-title {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 400;
+  color: var(--dark);
+  line-height: 1.2;
+  margin-bottom: 6px;
+  letter-spacing: 0.08em;
+}
+
+.login-title span {
+  color: var(--rose);
+  font-style: italic;
+  font-family: var(--font-body);
+  font-size: 2.4rem;
+}
+
+.login-sub {
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  color: var(--mid);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 40px;
+}
+
+.input-group {
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.input-group label {
+  display: block;
+  font-family: var(--font-sans);
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--mid);
+  margin-bottom: 6px;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid var(--rose-light);
+  border-radius: 2px;
+  background: var(--rose-pale);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  color: var(--dark);
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+.input-group input:focus {
+  border-color: var(--rose);
+  background: #fff;
+}
+
+.error-msg {
+  color: #c0392b;
+  font-size: 0.82rem;
+  min-height: 20px;
+  margin-bottom: 8px;
+  font-family: var(--font-sans);
+}
+
+#login-btn {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, var(--rose), var(--rose-light));
+  border: none;
+  border-radius: 2px;
+  color: white;
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  letter-spacing: 0.2em;
+  cursor: pointer;
+  transition: opacity 0.3s, transform 0.2s;
+  margin-top: 8px;
+}
+
+#login-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+
+/* ===== COUNTDOWN ===== */
+#countdown-screen {
+  background: linear-gradient(160deg, #2a1a1f 0%, #4a2535 50%, #2a1a1f 100%);
+  flex-direction: column;
+}
+
+.countdown-wrap { text-align: center; padding: 40px 20px; }
+
+.countdown-label-top, .countdown-label-bot {
+  font-family: var(--font-body);
+  font-size: 1.4rem;
+  color: var(--rose-light);
+  font-style: italic;
+  margin: 20px 0;
+}
+
+.countdown-boxes {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin: 32px 0;
+}
+
+.cbox {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(201,116,138,0.3);
+  border-radius: 4px;
+  padding: 28px 32px;
+  min-width: 110px;
+  text-align: center;
+}
+
+.cbox span {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 3rem;
+  color: var(--gold-light);
+  line-height: 1;
+}
+
+.cbox small {
+  font-family: var(--font-sans);
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--rose-light);
+  margin-top: 8px;
+  display: block;
+}
+
+/* ===== CITY CHOICE ===== */
+#city-screen {
+  background: linear-gradient(135deg, #fdf0f3 0%, #fdf8f2 100%);
+  flex-direction: column;
+  padding: 60px 20px;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+}
+
+.city-title {
+  font-family: var(--font-display);
+  font-size: 2.2rem;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  color: var(--dark);
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.city-sub {
+  font-family: var(--font-body);
+  font-style: italic;
+  color: var(--mid);
+  text-align: center;
+  margin-bottom: 48px;
+  font-size: 1.1rem;
+}
+
+.cities-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+  max-width: 760px;
+  width: 100%;
+}
+
+.city-card {
+  border-radius: 4px;
+  overflow: hidden;
+  cursor: pointer;
+  box-shadow: 0 4px 24px rgba(42,26,31,0.1);
+  transition: transform 0.3s, box-shadow 0.3s;
+  border: 1px solid var(--rose-light);
+}
+
+.city-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 40px rgba(201,116,138,0.2);
+}
+
+.city-img {
+  height: 180px;
+  background-size: cover;
+  background-position: center;
+}
+
+/* City background gradients (elegant abstract) */
+.paris-bg     { background: linear-gradient(135deg, #c9748a 0%, #e8b4c0 40%, #c9a84c 100%); }
+.edinburgh-bg { background: linear-gradient(135deg, #4a5568 0%, #718096 40%, #2d3748 100%); }
+.istanbul-bg  { background: linear-gradient(135deg, #c9a84c 0%, #e8d5a3 40%, #c9748a 100%); }
+.barcelona-bg { background: linear-gradient(135deg, #e8734a 0%, #f0a67a 40%, #c9748a 100%); }
+
+.city-info {
+  padding: 20px 24px;
+  background: white;
+}
+
+.city-info h3 {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  color: var(--dark);
+  margin-bottom: 4px;
+}
+
+.city-info p {
+  font-family: var(--font-body);
+  font-style: italic;
+  color: var(--mid);
+  font-size: 0.95rem;
+}
+
+/* ===== ITINERARY ===== */
+#itinerary-screen {
+  flex-direction: column;
+  background: linear-gradient(160deg, #fdf0f3 0%, #fdf8f2 100%);
+  padding: 40px 20px;
+  align-items: flex-start;
+}
+
+.back-btn {
+  background: none;
+  border: 1px solid var(--rose-light);
+  color: var(--rose);
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 10px 20px;
+  cursor: pointer;
+  border-radius: 2px;
+  margin-bottom: 40px;
+  transition: background 0.2s;
+}
+
+.back-btn:hover { background: var(--rose-pale); }
+
+#itinerary-content {
+  max-width: 800px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.itinerary-header {
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.itinerary-header h1 {
+  font-family: var(--font-display);
+  font-size: 2.6rem;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  color: var(--dark);
+}
+
+.itinerary-header p {
+  font-family: var(--font-body);
+  font-style: italic;
+  color: var(--mid);
+  font-size: 1.2rem;
+  margin-top: 8px;
+}
+
+.itinerary-header .dates {
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-top: 16px;
+}
+
+.day-block {
+  margin-bottom: 40px;
+  border-left: 2px solid var(--rose-light);
+  padding-left: 28px;
+  position: relative;
+}
+
+.day-block::before {
+  content: '';
+  position: absolute;
+  left: -6px;
+  top: 4px;
+  width: 10px;
+  height: 10px;
+  background: var(--rose);
+  border-radius: 50%;
+}
+
+.day-label {
+  font-family: var(--font-sans);
+  font-size: 0.68rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 6px;
+}
+
+.day-title {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  color: var(--dark);
+  margin-bottom: 12px;
+}
+
+.day-activities {
+  list-style: none;
+}
+
+.day-activities li {
+  font-family: var(--font-body);
+  font-size: 1.05rem;
+  color: var(--mid);
+  padding: 6px 0;
+  border-bottom: 1px dashed rgba(201,116,138,0.2);
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.day-activities li span.icon {
+  flex-shrink: 0;
+  font-size: 0.9rem;
+}
+
+.divider-ornament {
+  text-align: center;
+  color: var(--gold-light);
+  letter-spacing: 0.5em;
+  font-size: 1rem;
+  margin: 32px 0;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 560px) {
+  .cities-grid { grid-template-columns: 1fr; }
+  .countdown-boxes { gap: 12px; }
+  .cbox { padding: 20px 18px; min-width: 80px; }
+  .cbox span { font-size: 2.2rem; }
+  .login-box { padding: 40px 28px; }
+}
