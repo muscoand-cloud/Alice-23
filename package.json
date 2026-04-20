@@ -1,7 +1,7 @@
 {
   "name": "compleanno-alice",
   "version": "1.0.0",
-  "description": "Birthday surprise website for Alice",
+  "description": "Birthday surprise for Alice",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
